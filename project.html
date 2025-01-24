@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Replacement and Scheduling Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: linear-gradient(to right, #ece9e6, #ffffff);
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #222;
+        }
+        .calculator {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .calculator:hover {
+            transform: scale(1.02);
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px auto;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(to right, #4caf50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background: linear-gradient(to right, #45a049, #4caf50);
+            transform: scale(1.05);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            text-align: center;
+        }
+        .gantt-chart {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        .gantt-bar {
+            height: 40px;
+            margin: 5px;
+            position: relative;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .gantt-bar:hover {
+            transform: scale(1.1);
+        }
+        .gantt-label {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #4caf50;
+            color: white;
+        }
+        .hit {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .miss {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .steps {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .steps h3 {
+            color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Page Replacement and Scheduling Calculator</h1>
+
+    <div class="calculator">
+        <h2>Page Replacement (FIFO)</h2>
+        <input type="text" id="pageReferences" placeholder="Enter page references (comma-separated)">
+        <input type="number" id="frameCount" placeholder="Enter number of frames">
+        <button onclick="calculateFIFO()">Calculate FIFO Page Faults</button>
+        <div class="result" id="fifoResult"></div>
+        <div class="gantt-chart" id="fifoGanttChart"></div>
+        <table id="hitMissTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Page</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="hitMissBody"></tbody>
+        </table>
+        <div id="fifoSteps" class="steps"></div>
+    </div>
+
+    <div class="calculator">
+        <h2>Scheduling (FCFS)</h2>
+        <input type="text" id="arrivalTimes" placeholder="Enter arrival times (comma-separated)">
+        <input type="text" id="burstTimes" placeholder="Enter burst times (comma-separated)">
+        <button onclick="calculateFCFS()">Calculate FCFS Metrics</button>
+        <div class="result" id="fcfsResult"></div>
+        <div class="gantt-chart" id="fcfsGanttChart"></div>
+    </div>
+
+    <script>
+        function calculateFIFO() {
+            const pageReferences = document.getElementById('pageReferences').value.split(',').map(Number);
+            const frameCount = parseInt(document.getElementById('frameCount').value);
+            const frames = [];
+            let pageFaults = 0;
+            const hitMiss = [];
+            const steps = [];
+
+            for (let i = 0; i < pageReferences.length; i++) {
+                const page = pageReferences[i];
+                if (!frames.includes(page)) {
+                    if (frames.length < frameCount) {
+                        frames.push(page);
+                    } else {
+                        frames.shift();
+                        frames.push(page);
+                    }
+                    pageFaults++;
+                    hitMiss.push({ page: page, status: 'Miss' });
+                    steps.push(`Step ${i + 1}: Page ${page} causes a page fault. Frames: [${frames.join(', ')}]`);
+                } else {
+                    hitMiss.push({ page: page, status: 'Hit' });
+                    steps.push(`Step ${i + 1}: Page ${page} is a hit. Frames: [${frames.join(', ')}]`);
+                }
+            }
+
+            document.getElementById('fifoResult').innerText = `Total Page Faults: ${pageFaults}`;
+            displaySteps('fifoSteps', steps);
+            displayHitMissTable(hitMiss);
+            displayGanttChart('fifoGanttChart', pageReferences, hitMiss);
+        }
+
+        function displayHitMissTable(hitMiss) {
+            const hitMissBody = document.getElementById('hitMissBody');
+            hitMissBody.innerHTML = '';
+            hitMiss.forEach(entry => {
+                const row = document.createElement('tr');
+                row.className = entry.status.toLowerCase();
+                const pageCell = document.createElement('td');
+                pageCell.innerText = entry.page;
+                const statusCell = document.createElement('td');
+                statusCell.innerText = entry.status;
+                row.appendChild(pageCell);
+                row.appendChild(statusCell);
+                hitMissBody.appendChild(row);
+            });
+            document.getElementById('hitMissTable').style.display = 'table';
+        }
+
+        function displayGanttChart(containerId, pageReferences, hitMiss) {
+            const ganttChart = document.getElementById(containerId);
+            ganttChart.innerHTML = '';
+            pageReferences.forEach((page, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'gantt-bar';
+                bar.style.width = '50px';
+                bar.style.backgroundColor = hitMiss[index].status === 'Hit' ? '#4caf50' : '#f44336';
+                const label = document.createElement('span');
+                label.className = 'gantt-label';
+                label.innerText = page;
+                bar.appendChild(label);
+                ganttChart.appendChild(bar);
+            });
+        }
+
+        function displaySteps(containerId, steps) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<h3>Steps:</h3>' + steps.map(step => `<p>${step}</p>`).join('');
+        }
+
+        function calculateFCFS() {
+            const arrivalTimes = document.getElementById('arrivalTimes').value.split(',').map(Number);
+            const burstTimes = document.getElementById('burstTimes').value.split(',').map(Number);
+
+            if (arrivalTimes.length !== burstTimes.length) {
+                alert('Arrival times and burst times must have the same length.');
+                return;
+            }
+
+            const n = arrivalTimes.length;
+            const completionTimes = new Array(n).fill(0);
+            const turnaroundTimes = new Array(n).fill(0);
+            const waitingTimes = new Array(n).fill(0);
+
+            let currentTime = 0;
+
+            for (let i = 0; i < n; i++) {
+                if (currentTime < arrivalTimes[i]) {
+                    currentTime = arrivalTimes[i];
+                }
+                completionTimes[i] = currentTime + burstTimes[i];
+                turnaroundTimes[i] = completionTimes[i] - arrivalTimes[i];
+                waitingTimes[i] = turnaroundTimes[i] - burstTimes[i];
+                currentTime += burstTimes[i];
+            }
+
+            const avgTurnaroundTime = (turnaroundTimes.reduce((a, b) => a + b, 0) / n).toFixed(2);
+            const avgWaitingTime = (waitingTimes.reduce((a, b) => a + b, 0) / n).toFixed(2);
+
+            document.getElementById('fcfsResult').innerHTML = `Average Turnaround Time: ${avgTurnaroundTime}<br>Average Waiting Time: ${avgWaitingTime}`;
+        }
+    </script>
+</body>
+</html>
