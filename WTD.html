@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riddle Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Baloo 2', cursive;
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Add floating bubbles for a playful background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 30%),
+                radial-gradient(circle at 75% 44%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 20%),
+                radial-gradient(circle at 46% 82%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 35%),
+                radial-gradient(circle at 80% 95%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 15%),
+                radial-gradient(circle at 13% 65%, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 25%);
+            z-index: -1;
+        }
+        
+        h1 {
+            font-size: 4.5em;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+            background-image: linear-gradient(
+                to right, 
+                #ff0000, /* Red */
+                #ff7f00, /* Orange */
+                #ffff00, /* Yellow */
+                #00ff00, /* Green */
+                #0000ff, /* Blue */
+                #4b0082, /* Indigo */
+                #9400d3  /* Violet */
+            );
+            background-size: 200% auto;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-text 4s linear infinite;
+            text-shadow: none;
+        }
+        
+        @keyframes rainbow-text {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .riddle-container {
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            padding: 40px;
+            color: #333;
+            width: 80%;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(79, 232, 255, 0.4);
+            transition: all 0.4s ease;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .riddle-container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 40px rgba(79, 232, 255, 0.5);
+        }
+        
+        .riddle-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #ff3399, #ff7f50, #ffcc00, #33cc33, #3399ff, #9966ff);
+            background-size: 600% 600%;
+            animation: rainbow 6s linear infinite;
+        }
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        #riddle {
+            font-size: 1.8em;
+            line-height: 1.4;
+            margin-bottom: 30px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 20px;
+            width: 70%;
+            border-radius: 50px;
+            margin-top: 20px;
+            border: 3px solid #ff66b2;
+            outline: none;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+            font-family: 'Baloo 2', cursive;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            border-color: #ff3399;
+            box-shadow: 0 0 15px rgba(255, 51, 153, 0.4);
+            width: 75%;
+        }
+
+        button {
+            padding: 18px 35px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #ff3399 0%, #ff7f50 100%);
+            border: none;
+            color: white;
+            border-radius: 50px;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Baloo 2', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(255, 51, 153, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 51, 153, 0.6);
+        }
+        
+        button:active {
+            transform: scale(0.98) translateY(0);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+            transition: all 0.3s ease;
+        }
+        
+        button:hover::after {
+            left: 100%;
+        }
+
+        #result {
+            margin-top: 25px;
+            font-size: 2.2em;
+            font-weight: bold;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        #result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .correct {
+            color: #00cc66;
+            text-shadow: 0 0 10px rgba(0, 204, 102, 0.3);
+        }
+
+        .incorrect {
+            color: #ff3333;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+
+        .hint {
+            color: #ff3399;
+            font-size: 1.4em;
+            margin-top: 15px;
+            font-style: italic;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        #hint:hover {
+            opacity: 1;
+            transform: scale(1.03);
+        }
+        
+        #restart {
+            display: none;
+            background: linear-gradient(135deg, #3399ff 0%, #33cc33 100%);
+            margin: 30px auto 10px;
+        }
+        
+        /* Add shake animation for incorrect answers */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 3em;
+            }
+            
+            .riddle-container {
+                width: 90%;
+                padding: 30px 20px;
+            }
+            
+            #riddle {
+                font-size: 1.5em;
+            }
+            
+            input {
+                width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Riddle Game</h1>
+    <div class="riddle-container">
+        <p id="riddle"></p>
+        <input type="text" id="answer" placeholder="Enter your answer" autocomplete="off">
+        <button onclick="checkAnswer()">Submit</button>
+        <p id="result"></p>
+        <p id="hint" class="hint"></p>
+        <button id="restart" onclick="restartGame()">Play Again!</button>
+    </div>
+
+    <script>
+        const riddles = [
+            { question: "What has keys but can't open locks?", answer: "piano", hint: "Think about a musical instrument." },
+            { question: "What starts with an E, ends with an E, but only contains one letter?", answer: "envelope", hint: "It's something related to the post office." },
+            { question: "What is always coming but never arrives?", answer: "tomorrow", hint: "It's a concept related to time." },
+            { question: "What is full of holes but still holds water?", answer: "sponge", hint: "Think of something used for cleaning." },
+            { question: "I shave every day, but my beard stays the same. What am I?", answer: "barber", hint: "It's a profession." },
+            { question: "I follow you all the time and copy your every move, but you can't touch me or catch me. What am I?", answer: "shadow", hint: "It's something created by light." }
+        ];
+        
+        let currentRiddleIndex = 0;
+        displayRiddle();
+
+        function displayRiddle() {
+            document.getElementById('riddle').innerText = riddles[currentRiddleIndex].question;
+            document.getElementById('hint').innerText = riddles[currentRiddleIndex].hint;
+        }
+
+        function checkAnswer() {
+            const playerAnswer = document.getElementById('answer').value.toLowerCase().trim();
+            const correctAnswer = riddles[currentRiddleIndex].answer.toLowerCase();
+            const resultElement = document.getElementById('result');
+
+            resultElement.className = ''; // Reset classes
+            
+            // Force the reflow to restart animation
+            void resultElement.offsetWidth;
+            
+            if (playerAnswer === correctAnswer) {
+                resultElement.innerText = "Correct! 🎉";
+                resultElement.className = 'correct show';
+                
+                setTimeout(() => {
+                    currentRiddleIndex++;
+                    if (currentRiddleIndex >= riddles.length) {
+                        document.getElementById('riddle').innerText = "🏆 Congratulations! You've completed all the riddles! 🏆";
+                        document.getElementById('hint').innerText = "You're a master of riddles!";
+                        document.getElementById('answer').style.display = 'none';
+                        document.querySelector('button').style.display = 'none';
+                        document.getElementById('restart').style.display = 'inline-block';
+                    } else {
+                        displayRiddle();
+                    }
+                    document.getElementById('answer').value = '';
+                    resultElement.className = '';
+                }, 2000);
+            } else {
+                resultElement.innerText = "Sorry, that's incorrect. Try again! 🤔";
+                resultElement.className = 'incorrect show';
+                
+                // Subtle shake animation for wrong answer
+                document.querySelector('.riddle-container').classList.add('shake');
+                setTimeout(() => {
+                    document.querySelector('.riddle-container').classList.remove('shake');
+                }, 500);
+            }
+        }
+
+        function restartGame() {
+            currentRiddleIndex = 0;
+            displayRiddle();
+            document.getElementById('answer').style.display = 'inline-block';
+            document.querySelector('button').style.display = 'inline-block';
+            document.getElementById('restart').style.display = 'none';
+            document.getElementById('answer').value = '';
+            document.getElementById('result').className = '';
+        }
+        
+        // Enter key functionality
+        document.getElementById('answer').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkAnswer();
+            }
+        });
+        
+        // Add some animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.riddle-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(function() {
+                container.style.transition = 'all 0.8s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
